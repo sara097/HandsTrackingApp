@@ -7,19 +7,20 @@ import android.graphics.Paint
 import android.view.SurfaceView
 
 class CameraOverlaySurfaceView(
-        val ctx: Context
+        ctx: Context
 ) : SurfaceView(ctx) {
+
+    var text: String = ""
 
     init {
         setWillNotDraw(false)
     }
 
-
     override fun onDraw(canv: Canvas) {
         val paint = Paint()
-
         paint.color = Color.WHITE
-        paint.textSize = 50.0f
-        canv.drawText("Some Text", 100.0f, 205.0f, paint)
+        paint.textSize = 100.0f // za duze
+        paint.textAlign = Paint.Align.CENTER
+        canv.drawText(text, 400.0f, 1605.0f, paint) //zle rozmieszczone
     }
 }

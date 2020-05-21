@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import android.util.Size
 import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -30,7 +29,7 @@ class HandTrackingActivity : AppCompatActivity() {
     private var previewFrameTexture: SurfaceTexture? = null
 
     // {@link SurfaceView} that displays the camera-preview frames processed by a MediaPipe graph.
-    private lateinit var previewDisplayView: SurfaceView
+    private lateinit var previewDisplayView: CameraOverlaySurfaceView
 
     // Creates and manages an {@link EGLContext}.
     private lateinit var eglManager: EglManager
@@ -50,6 +49,7 @@ class HandTrackingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hand_tracking)
         previewDisplayView = CameraOverlaySurfaceView(this)
+
         setupPreviewDisplayView()
         // Initialize asset manager so that MediaPipe native libraries can access the app assets, e.g.,
         // binary graphs.
@@ -72,6 +72,9 @@ class HandTrackingActivity : AppCompatActivity() {
                             + packet.timestamp
                             + "] "
                             + getMultiHandLandmarksDebugString(multiHandLandmarks))
+            //Rysuje to co chcemy, czyli info o landmarkach poki co
+            previewDisplayView.text = getMultiHandLandmarksDebugString(multiHandLandmarks)
+            previewDisplayView.invalidate()
         }
         PermissionHelper.checkAndRequestCameraPermissions(this)
     }

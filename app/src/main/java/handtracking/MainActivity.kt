@@ -2,21 +2,18 @@ package handtracking
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mediapipemultihandstrackingapp.R
 import com.google.mediapipe.components.PermissionHelper
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-
-    lateinit var handTrackingBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        handTrackingBtn = findViewById(R.id.openBtn)
-        handTrackingBtn.setOnClickListener {
+        openBtn.setOnClickListener {
             if (!PermissionHelper.cameraPermissionsGranted(this))
                 PermissionHelper.checkAndRequestCameraPermissions(this)
             if (PermissionHelper.cameraPermissionsGranted(this)) {
@@ -26,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         PermissionHelper.checkAndRequestCameraPermissions(this)
-        handTrackingBtn.isEnabled = PermissionHelper.cameraPermissionsGranted(this)
+        openBtn.isEnabled = PermissionHelper.cameraPermissionsGranted(this)
 
     }
 
