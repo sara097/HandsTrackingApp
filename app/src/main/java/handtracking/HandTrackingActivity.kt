@@ -2,6 +2,7 @@ package handtracking
 
 import android.graphics.SurfaceTexture
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.util.Size
 import android.view.SurfaceHolder
@@ -15,6 +16,8 @@ import com.google.mediapipe.framework.AndroidAssetUtil
 import com.google.mediapipe.framework.Packet
 import com.google.mediapipe.framework.PacketGetter
 import com.google.mediapipe.glutil.EglManager
+import kotlinx.android.synthetic.main.activity_hand_tracking.*
+import java.util.*
 
 class HandTrackingActivity : AppCompatActivity() {
 
@@ -45,14 +48,54 @@ class HandTrackingActivity : AppCompatActivity() {
     // Handles camera access via the {@link CameraX} Jetpack support library.
     private lateinit var cameraHelper: CameraXPreviewHelper
 
+    private var gestureName = "test"
+    private var gestureData = "time, hand, L1x, L1y, L1z, L2x, L2y, L2z, L3x, L3y, L3z, L4x, L4y, L4z, L5x, L5y, L5z, L6x, L6y, L6z, L7x, L7y, L7z" +
+            ", L8x, L8y, L8z, L9x, L9y, L9z, L10x, L10y, L10z, L11x, L11y, L11z, L12x, L12y, L12z, L13x, L13y, L13z" +
+            ", L14x, L14y, L14z, L15x, L15y, L15z, L16x, L16y, L16z, L17x, L17y, L17z, L18x, L18y, L18z, L19x, L19y, L19z" +
+            ", L20x, L20y, L20z, L21x, L21y, L21z\n" //3 sekundy na gest i spytac o nazwe gestu....
+    private val handler = Handler()
+    private var saveFlag = false
+    private var collectFlag = false;
+    private var timeElapsed = 0;
+    private val interval = 1000;
+    private val time = 4000;
+
+    private fun createTimeHandler() {
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                if (saveFlag) {
+                    timeElapsed++
+                    if (timeElapsed == 1) {
+                        collectFlag = true
+                    }
+                    if (timeElapsed == 4) {
+                        collectFlag = false;
+                        saveFlag = false;
+                        timeElapsed = 0
+                        gestureName = editText.text.toString()
+                        FileOperations(this@HandTrackingActivity, gestureName, gestureData).saveData(true)
+                        gestureData = "time, hand, L1x, L1y, L1z, L2x, L2y, L2z, L3x, L3y, L3z, L4x, L4y, L4z, L5x, L5y, L5z, L6x, L6y, L6z, L7x, L7y, L7z" +
+                                ", L8x, L8y, L8z, L9x, L9y, L9z, L10x, L10y, L10z, L11x, L11y, L11z, L12x, L12y, L12z, L13x, L13y, L13z" +
+                                ", L14x, L14y, L14z, L15x, L15y, L15z, L16x, L16y, L16z, L17x, L17y, L17z, L18x, L18y, L18z, L19x, L19y, L19z" +
+                                ", L20x, L20y, L20z, L21x, L21y, L21z\n"
+                    }
+                }
+                handler.postDelayed(this, interval.toLong())
+            }
+        }, interval.toLong())
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hand_tracking)
         previewDisplayView = CameraOverlaySurfaceView(this)
-
+        createTimeHandler()
         setupPreviewDisplayView()
         // Initialize asset manager so that MediaPipe native libraries can access the app assets, e.g.,
         // binary graphs.
+        saveButton.setOnClickListener {
+            saveFlag = true
+        }
         AndroidAssetUtil.initializeNativeAssetManager(this)
         eglManager = EglManager(null)
         processor = FrameProcessor(
@@ -67,12 +110,14 @@ class HandTrackingActivity : AppCompatActivity() {
         ) { packet: Packet ->
             Log.d(TAG, "Received multi-hand landmarks packet.")
             val multiHandLandmarks = PacketGetter.getProtoVector(packet, LandmarkProto.NormalizedLandmarkList.parser())
-            Log.d(TAG,
-                    "[TS:"
-                            + packet.timestamp
-                            + "] "
-                            + getMultiHandLandmarksDebugString(multiHandLandmarks))
+//            Log.d(TAG,
+//                    "[TS:"
+//                            + packet.timestamp
+//                            + "] "
+//                            + )
             //Rysuje to co chcemy, czyli info o landmarkach poki co
+            if (saveFlag)
+                gestureData = gestureData + getMultiHandLandmarksDebugString(multiHandLandmarks)
             previewDisplayView.text = getMultiHandLandmarksDebugString(multiHandLandmarks)
             previewDisplayView.invalidate()
         }
@@ -137,13 +182,18 @@ class HandTrackingActivity : AppCompatActivity() {
             """.trimIndent()
 
         //Tylko dwie dłonie nas interesują. Póki co.
+        var textToSave = ""
         for ((handIndex, landmarks) in multiHandLandmarks.withIndex()) {
             multiHandLandmarksStr += """	#Hand landmarks for hand[$handIndex]: ${landmarks.landmarkCount}"""
-
+            var landmarkText = ""
             for ((landmarkIndex, landmark) in landmarks.landmarkList.withIndex())
-                multiHandLandmarksStr += """		Landmark [$landmarkIndex]: (${landmark.x}, ${landmark.y}, ${landmark.z})"""
+                if (landmarkIndex == 20) landmarkText = landmarkText + "${landmark.x}, ${landmark.y}, ${landmark.z} \n"
+                else landmarkText = landmarkText + "${landmark.x}, ${landmark.y}, ${landmark.z}, "
+
+            textToSave = textToSave + "${Calendar.getInstance().time}, $handIndex, $landmarkText"
+
         }
-        return multiHandLandmarksStr
+        return textToSave
     }
 
     companion object {
