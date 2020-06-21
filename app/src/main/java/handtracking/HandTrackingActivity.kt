@@ -49,12 +49,11 @@ class HandTrackingActivity : AppCompatActivity() {
     private lateinit var cameraHelper: CameraXPreviewHelper
 
     private var gestureName = "test"
-    private var gestureData = ""
-
-    //            "time, hand, L1x, L1y, L1z, L2x, L2y, L2z, L3x, L3y, L3z, L4x, L4y, L4z, L5x, L5y, L5z, L6x, L6y, L6z, L7x, L7y, L7z" +
-//            ", L8x, L8y, L8z, L9x, L9y, L9z, L10x, L10y, L10z, L11x, L11y, L11z, L12x, L12y, L12z, L13x, L13y, L13z" +
-//            ", L14x, L14y, L14z, L15x, L15y, L15z, L16x, L16y, L16z, L17x, L17y, L17z, L18x, L18y, L18z, L19x, L19y, L19z" +
-//            ", L20x, L20y, L20z, L21x, L21y, L21z\n" //3 sekundy na gest i spytac o nazwe gestu....
+    private var gestureData =
+            "time, hand, L1x, L1y, L1z, L2x, L2y, L2z, L3x, L3y, L3z, L4x, L4y, L4z, L5x, L5y, L5z, L6x, L6y, L6z, L7x, L7y, L7z" +
+                    ", L8x, L8y, L8z, L9x, L9y, L9z, L10x, L10y, L10z, L11x, L11y, L11z, L12x, L12y, L12z, L13x, L13y, L13z" +
+                    ", L14x, L14y, L14z, L15x, L15y, L15z, L16x, L16y, L16z, L17x, L17y, L17z, L18x, L18y, L18z, L19x, L19y, L19z" +
+                    ", L20x, L20y, L20z, L21x, L21y, L21z\n" //3 sekundy na gest i spytac o nazwe gestu....
     private val handler = Handler()
     private var saveFlag = false
     private var collectFlag = false;
@@ -75,12 +74,12 @@ class HandTrackingActivity : AppCompatActivity() {
                         saveFlag = false;
                         timeElapsed = 0
                         gestureName = editText.text.toString()
-                        FileOperations(this@HandTrackingActivity, gestureName, gestureData).saveData(true)
-                        gestureData = ""
-//                                "time, hand, L1x, L1y, L1z, L2x, L2y, L2z, L3x, L3y, L3z, L4x, L4y, L4z, L5x, L5y, L5z, L6x, L6y, L6z, L7x, L7y, L7z" +
-//                                ", L8x, L8y, L8z, L9x, L9y, L9z, L10x, L10y, L10z, L11x, L11y, L11z, L12x, L12y, L12z, L13x, L13y, L13z" +
-//                                ", L14x, L14y, L14z, L15x, L15y, L15z, L16x, L16y, L16z, L17x, L17y, L17z, L18x, L18y, L18z, L19x, L19y, L19z" +
-//                                ", L20x, L20y, L20z, L21x, L21y, L21z\n"
+                        FileOperations(this@HandTrackingActivity, gestureName, gestureData).saveData()
+                        gestureData =
+                                "time, hand, L1x, L1y, L1z, L2x, L2y, L2z, L3x, L3y, L3z, L4x, L4y, L4z, L5x, L5y, L5z, L6x, L6y, L6z, L7x, L7y, L7z" +
+                                        ", L8x, L8y, L8z, L9x, L9y, L9z, L10x, L10y, L10z, L11x, L11y, L11z, L12x, L12y, L12z, L13x, L13y, L13z" +
+                                        ", L14x, L14y, L14z, L15x, L15y, L15z, L16x, L16y, L16z, L17x, L17y, L17z, L18x, L18y, L18z, L19x, L19y, L19z" +
+                                        ", L20x, L20y, L20z, L21x, L21y, L21z\n"
                     }
                 }
                 handler.postDelayed(this, interval.toLong())
